@@ -1,3 +1,7 @@
+interface Window {
+  webkitAudioContext: typeof AudioContext;
+}
+
 export class Synth {
   playCount = 0;
   ctx: AudioContext | null = null;
@@ -45,7 +49,12 @@ export class Synth {
   }
 
   private init() {
-    this.ctx = new AudioContext();
+    this.ctx = (() => {
+      if ('webkitAudioContext' in window) {
+        return new ((window as unknown) as Window).webkitAudioContext();
+      }
+      return new AudioContext();
+    })();
     this.gainEnvelope = this.ctx.createGain();
     this.createNewOscillator();
     this.gainEnvelope.connect(this.ctx.destination);
