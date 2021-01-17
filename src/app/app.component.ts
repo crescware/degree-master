@@ -1,22 +1,8 @@
 import { Component } from '@angular/core';
+import { takeUntil, takeWhile } from 'rxjs/operators';
 
+import { note, Note, Oct, Series, Tone } from './series';
 import { Synth } from './synth';
-
-const note = [
-  'c',
-  'c#',
-  'd',
-  'd#',
-  'e',
-  'f',
-  'f#',
-  'g',
-  'g#',
-  'a',
-  'a#',
-  'b',
-] as const;
-type Note = typeof note[number];
 
 const freqArr = [...Array(24)]
   .reduce((acc, _, i) => {
@@ -31,12 +17,42 @@ const freqArr = [...Array(24)]
 })
 export class AppComponent {
   synth: Synth | null = null;
+  series: Series | null = null;
 
-  onClickStart() {
+  ngOnInit() {
     this.synth = new Synth();
   }
 
-  onMousedown(n: Note, oct: 0 | 1) {
-    this.synth?.play(freqArr[note.indexOf(n) + oct * 12], 300);
+  onClickStart() {
+    this.series = new Series();
+
+    this.series.destroy$.subscribe(() => {
+      this.wrong();
+    });
+
+    this.series.playTone$
+      .pipe(takeUntil(this.series.destroy$))
+      .subscribe((v) => this.play(v.tone, v.duration));
+
+    this.series.startSeries();
+  }
+
+  getCount(): number {
+    return this.series?.getCount() ?? 0;
+  }
+
+  async onMousedown(n: Note, oct: Oct) {
+    if (this.series === null) {
+      throw new Error('Invalid game');
+    }
+    this.series.guess(n, oct);
+  }
+
+  private async play([n, oct]: Tone, duration: number): Promise<void> {
+    await this.synth?.play(freqArr[note.indexOf(n) + oct * 12], duration);
+  }
+  private async wrong(): Promise<void> {
+    await this.synth?.play(103.82, 100);
+    await this.synth?.play(103.82, 600);
   }
 }
