@@ -38,6 +38,7 @@
   "private": true,
   "scripts": {
     "build": "ng build",
+    "deploy": "npm run build -- --prod && firebase deploy",
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
