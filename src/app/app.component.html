@@ -1,1 +1,19 @@
-<button (mousedown)="onMousedown()">start</button>
+<button (click)="onClickStart()">start!</button>
+
+<div>
+  <button (mousedown)="onMousedown('c#', 0)">c#</button>
+  <button (mousedown)="onMousedown('d#', 0)">d#</button>
+  <button (mousedown)="onMousedown('f#', 0)">f#</button>
+  <button (mousedown)="onMousedown('g#', 0)">g#</button>
+  <button (mousedown)="onMousedown('a#', 0)">a#</button>
+</div>
+<div>
+  <button (mousedown)="onMousedown('c', 0)">c</button>
+  <button (mousedown)="onMousedown('d', 0)">d</button>
+  <button (mousedown)="onMousedown('e', 0)">e</button>
+  <button (mousedown)="onMousedown('f', 0)">f</button>
+  <button (mousedown)="onMousedown('g', 0)">g</button>
+  <button (mousedown)="onMousedown('a', 0)">a</button>
+  <button (mousedown)="onMousedown('b', 0)">b</button>
+  <button (mousedown)="onMousedown('c', 1)">c</button>
+</div>
