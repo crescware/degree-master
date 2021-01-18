@@ -103,21 +103,28 @@ export class Synth {
 
     const releaseMs = Math.max(1, Math.min(200, durationMs));
     await this.sleep(durationMs - releaseMs);
-
-    const t2 = ctx.currentTime;
-    gainEnvelope.gain.setValueAtTime(gainEnvelope.gain.value, t2);
-    gainEnvelope.gain.linearRampToValueAtTime(0, t2 + releaseMs / 1000);
-
-    await this.sleep(releaseMs);
+    await this.release(releaseMs);
 
     this.playCount -= 1;
     this.destroyOscillator(hash);
   }
 
+  private async release(releaseMs: number): Promise<void> {
+    const [ctx, gainEnvelope] = this.getInstances();
+
+    const t2 = ctx.currentTime;
+    gainEnvelope.gain.setValueAtTime(gainEnvelope.gain.value, t2);
+    gainEnvelope.gain.linearRampToValueAtTime(0, t2 + releaseMs / 1000);
+    await this.sleep(releaseMs);
+  }
+
   private stopOthers(hash_: string): void {
     this.oscGroup
       .filter(({ hash }) => hash !== hash_)
-      .forEach(({ hash }) => this.destroyOscillator(hash));
+      .reduce(async (prev, { hash }) => {
+        await this.release(100);
+        this.destroyOscillator(hash);
+      }, Promise.resolve());
   }
 
   private destroyOscillator(hash_: string): void {
