@@ -58,20 +58,21 @@ export class Series {
     return choices[Math.floor(Math.random() * choices.length)];
   }
 
-  private addToSeries(tone: Tone) {
+  private addToSeries(tone: Tone): void {
     this.tones = this.tones.concat([tone]);
   }
 
-  private playSeries() {
-    this.tones.reduce(async (prev, tone) => {
+  private async playSeries(): Promise<void> {
+    await this.tones.reduce(async (prev, tone, i) => {
       await prev;
       await this.play(tone, 500);
     }, Promise.resolve());
   }
 
   private async play(tone: Tone, duration: number): Promise<void> {
-    this.playTone$.next({ tone, duration });
-    await this.sleep(duration);
+    const gap = 10; // 前のオシレーターインスタンス破棄時間を設けるため
+    this.playTone$.next({ tone, duration: duration - gap });
+    await this.sleep(duration + gap);
   }
 
   private sleep(ms: number): Promise<void> {
