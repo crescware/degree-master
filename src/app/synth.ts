@@ -4,29 +4,80 @@ interface Window {
 
 const oscillatorNotFoundError = 'Oscillator not found';
 
+function makeHash(): string {
+  const n = 16;
+  return btoa(
+    String.fromCharCode(...crypto.getRandomValues(new Uint8Array(n)))
+  ).substring(0, n);
+}
+
 export class Synth {
   playCount = 0;
   ctx: AudioContext | null = null;
   gainEnvelope: GainNode | null = null;
-  oscGroup: [hash: string, osc: OscillatorNode][] = [];
+  oscGroup: Array<{ hash: string; osc: OscillatorNode }> = [];
 
   constructor() {
     this.init();
   }
 
   async play(hz: number, durationMs: number): Promise<void> {
-    const n = 16;
-    const hash = btoa(
-      String.fromCharCode(...crypto.getRandomValues(new Uint8Array(n)))
-    ).substring(0, n);
-    await this.playImpl(hz, durationMs, hash);
+    await this.playImpl(hz, durationMs, makeHash());
   }
 
-  async playImpl(hz: number, durationMs: number, hash: string): Promise<void> {
-    console.log('play', hash);
+  private init() {
+    this.ctx = (() => {
+      if ('webkitAudioContext' in window) {
+        return new ((window as unknown) as Window).webkitAudioContext();
+      }
+      return new AudioContext();
+    })();
+    this.gainEnvelope = this.ctx.createGain();
+    this.gainEnvelope.connect(this.ctx.destination);
+  }
+
+  private getInstances(): [AudioContext, GainNode] {
+    if (this.ctx === null || this.gainEnvelope === null) {
+      throw new Error('Invalid instantiation');
+    }
+    return [this.ctx, this.gainEnvelope];
+  }
+
+  private getOscillator(hash_: string): OscillatorNode {
+    const found = this.oscGroup.find(({ hash }) => hash === hash_);
+    if (!found) {
+      throw new Error(oscillatorNotFoundError);
+    }
+    return found.osc;
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private createNewOscillator(hash_: string): void {
+    if (this.ctx === null || this.gainEnvelope === null) {
+      throw new Error('Invalid instantiation');
+    }
+    const i = this.oscGroup.findIndex(({ hash }) => hash === hash_);
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.connect(this.gainEnvelope);
+    if (i < 0) {
+      this.oscGroup = this.oscGroup.concat([{ hash: hash_, osc }]);
+      return;
+    }
+    this.oscGroup[i].osc = osc;
+  }
+
+  private async playImpl(
+    hz: number,
+    durationMs: number,
+    hash: string
+  ): Promise<void> {
     if (0 < this.playCount) {
       this.stopOthers(hash);
-      await this.sleep(1);
+      await this.sleep(1); // 別スタックにするため
     }
 
     const [ctx, gainEnvelope] = this.getInstances();
@@ -63,63 +114,16 @@ export class Synth {
     this.destroyOscillator(hash);
   }
 
-  private init() {
-    this.ctx = (() => {
-      if ('webkitAudioContext' in window) {
-        return new ((window as unknown) as Window).webkitAudioContext();
-      }
-      return new AudioContext();
-    })();
-    this.gainEnvelope = this.ctx.createGain();
-    this.gainEnvelope.connect(this.ctx.destination);
-  }
-
-  private getInstances(): [AudioContext, GainNode] {
-    if (this.ctx === null || this.gainEnvelope === null) {
-      throw new Error('Invalid instantiation');
-    }
-    return [this.ctx, this.gainEnvelope];
-  }
-
-  private getOscillator(hash: string): OscillatorNode {
-    const found = this.oscGroup.find(([hash_]) => hash_ === hash);
-    if (!found) {
-      throw new Error(oscillatorNotFoundError);
-    }
-    return found[1];
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  private createNewOscillator(hash: string): void {
-    if (this.ctx === null || this.gainEnvelope === null) {
-      throw new Error('Invalid instantiation');
-    }
-    const i = this.oscGroup.findIndex(([hash_]) => hash_ === hash);
-    const osc = this.ctx.createOscillator();
-    osc.type = 'sine';
-    osc.connect(this.gainEnvelope);
-    if (i < 0) {
-      this.oscGroup = this.oscGroup.concat([[hash, osc]]);
-      return;
-    }
-    this.oscGroup[i][1] = osc;
-  }
-
-  private stopOthers(hash: string): void {
+  private stopOthers(hash_: string): void {
     this.oscGroup
-      .filter(([hash_]) => hash_ !== hash)
-      .forEach(([hash_]) => {
-        this.destroyOscillator(hash_);
-      });
+      .filter(({ hash }) => hash !== hash_)
+      .forEach(({ hash }) => this.destroyOscillator(hash));
   }
 
-  private destroyOscillator(hash: string): void {
+  private destroyOscillator(hash_: string): void {
     let osc: OscillatorNode;
     try {
-      osc = this.getOscillator(hash);
+      osc = this.getOscillator(hash_);
     } catch (e) {
       if (!e.message.includes(oscillatorNotFoundError)) {
         throw e;
@@ -128,6 +132,6 @@ export class Synth {
     }
     osc.stop();
     osc.disconnect();
-    this.oscGroup = this.oscGroup.filter(([hash_]) => hash_ !== hash);
+    this.oscGroup = this.oscGroup.filter(({ hash }) => hash !== hash_);
   }
 }
