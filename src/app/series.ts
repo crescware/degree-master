@@ -24,12 +24,12 @@ export class Series {
   tones: Tone[] = [];
   cursor = 0;
 
-  startSeries() {
+  startSeries(): void {
     this.addToSeries(this.getNext());
     setTimeout(() => this.playSeries(), 500);
   }
 
-  async guess(n: Note, oct: Oct) {
+  async guess(n: Note, oct: Oct): Promise<void> {
     await this.play([n, oct], 500);
 
     const current = this.tones[this.cursor];

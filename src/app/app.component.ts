@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { takeUntil, takeWhile } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 import { note, Note, Oct, Series, Tone } from './series';
 import { Synth } from './synth';
@@ -19,16 +19,14 @@ export class AppComponent {
   synth: Synth | null = null;
   series: Series | null = null;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.synth = new Synth();
   }
 
-  onClickStart() {
+  onClickStart(): void {
     this.series = new Series();
 
-    this.series.destroy$.subscribe(() => {
-      this.wrong();
-    });
+    this.series.destroy$.subscribe(() => this.wrong());
 
     this.series.playTone$
       .pipe(takeUntil(this.series.destroy$))
@@ -41,7 +39,7 @@ export class AppComponent {
     return this.series?.getCount() ?? 0;
   }
 
-  async onMousedown(n: Note, oct: Oct) {
+  async onMousedown(n: Note, oct: Oct): Promise<void> {
     if (this.series === null) {
       throw new Error('Invalid game');
     }
@@ -51,6 +49,7 @@ export class AppComponent {
   private async play([n, oct]: Tone, duration: number): Promise<void> {
     await this.synth?.play(freqArr[note.indexOf(n) + oct * 12], duration);
   }
+
   private async wrong(): Promise<void> {
     await this.synth?.play(103.82, 100);
     await this.synth?.play(103.82, 600);
