@@ -1,0 +1,212 @@
+.Background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.Frame_Left,
+.Frame_Right {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  background: linear-gradient(
+    0deg,
+    #222222 0%,
+    #303030 3%,
+    #404040 97%,
+    #666666 100%
+  );
+}
+
+.Frame_Left {
+  left: 0;
+  border-right: 2px solid #232323;
+}
+
+.Frame_Right {
+  right: 0;
+  border-left: 2px solid #292929;
+}
+
+.Screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.LogoContainer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.Logo {
+  margin: 0;
+  color: #fef14a;
+  font-weight: normal;
+  font-size: 7vw;
+  margin-bottom: 4vh;
+}
+
+.Button_Start {
+  width: 20vw;
+  min-width: 120px;
+  height: 10vh;
+  max-height: 100px;
+  font-size: max(18px, min(3vh, 34px));
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  border-radius: 8px;
+  background: #cccccc;
+}
+
+.Button_Start:active {
+  background: #fef14a;
+}
+
+.CopyrightContainer {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 2vh;
+  font-size: 2vw;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.Copyright {
+  color: #cccccc;
+  position: relative;
+  bottom: 0;
+}
+
+.ScoreContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.Score {
+  position: relative;
+  color: white;
+  background: black;
+  padding: 3vh 2vw;
+  font-size: 2vw;
+  width: 8vw;
+  text-align: right;
+  border: 0.5vw #222222 solid;
+}
+
+.ScoreDecoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  background: linear-gradient(
+    180deg,
+    #ffffff11 0%,
+    #ffffff22 50%,
+    #00000044 51%
+  );
+  width: 100%;
+  height: 100%;
+}
+
+.KeysContainer {
+  position: absolute;
+  top: 0;
+  left: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 80px);
+  height: 100%;
+}
+
+.Keys_Upper,
+.Keys_Lower {
+  width: 100%;
+}
+
+.Keys_Upper {
+  display: flex;
+  justify-content: center;
+}
+
+.Key {
+  margin: 1%;
+  width: 7.09%;
+  height: 12vh;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px #aaa solid;
+  border-radius: 8px;
+  background: #aaaaaa;
+  transition-duration: 0.2s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n).active,
+.Keys_Lower .Key:nth-child(5n + 3).active {
+  border: 2px #fff solid;
+  background: #dc6c2a;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 1).active,
+.Keys_Lower .Key:nth-child(5n + 4).active {
+  border: 2px #fff solid;
+  background: #fef14a;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 2).active,
+.Keys_Lower .Key:nth-child(5n).active {
+  border: 2px #fff solid;
+  background: #50aa7f;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 3).active,
+.Keys_Lower .Key:nth-child(5n + 1).active {
+  border: 2px #fff solid;
+  background: #3e69af;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 4).active,
+.Keys_Lower .Key:nth-child(5n + 2).active {
+  border: 2px #fff solid;
+  background: #80c6ef;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Key[disabled] {
+  border: 2px #ffffff03 solid;
+  background: #ffffff09;
+}

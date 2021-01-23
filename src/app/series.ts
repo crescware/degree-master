@@ -1,39 +1,24 @@
 import { Subject } from 'rxjs';
-
-export const note = [
-  'c',
-  'c#',
-  'd',
-  'd#',
-  'e',
-  'f',
-  'f#',
-  'g',
-  'g#',
-  'a',
-  'a#',
-  'b',
-] as const;
-export type Note = typeof note[number];
-export type Oct = 0 | 1;
-export type Tone = [Note, Oct];
+import { Tone } from './tone';
 
 export class Series {
   readonly playTone$ = new Subject<{ tone: Tone; duration: number }>();
   readonly destroy$ = new Subject<void>();
   tones: Tone[] = [];
   cursor = 0;
+  private coverage: Tone[] = [];
 
-  startSeries(): void {
+  startSeries(coverage: Tone[]): void {
+    this.coverage = coverage;
     this.addToSeries(this.getNext());
     setTimeout(() => this.playSeries(), 500);
   }
 
-  async guess(n: Note, oct: Oct): Promise<void> {
-    await this.play([n, oct], 500);
+  async guess(tone: Tone): Promise<void> {
+    await this.play(tone, 500);
 
     const current = this.tones[this.cursor];
-    if (current[0] === n && current[1] === oct) {
+    if (current[0] === tone[0] && current[1] === tone[1]) {
       console.log('OK');
       this.cursor += 1;
       if (this.cursor === this.getCount()) {
@@ -54,8 +39,7 @@ export class Series {
   }
 
   private getNext(): Tone {
-    const choices = note.map((v) => [v, 0] as Tone).concat([['c', 1]]);
-    return choices[Math.floor(Math.random() * choices.length)];
+    return this.coverage[Math.floor(Math.random() * this.coverage.length)];
   }
 
   private addToSeries(tone: Tone): void {

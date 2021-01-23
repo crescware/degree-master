@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+html {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  background: linear-gradient(0deg, #333333 0%, #404040 2%, #505050 98%, #777777 100%);
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}

@@ -1,25 +1,49 @@
-<div *ngIf="getCount() === 0; else ElseBlock">
-  <button (click)="onClickStart()">start!</button>
+<div class="Background">
+  <div class="Frame_Left"></div>
+  <div class="Frame_Right"></div>
 </div>
 
-<ng-template #ElseBlock>
-  <div>
-    <button (mousedown)="onMousedown('c#', 0)">c#</button>
-    <button (mousedown)="onMousedown('d#', 0)">d#</button>
-    <button (mousedown)="onMousedown('f#', 0)">f#</button>
-    <button (mousedown)="onMousedown('g#', 0)">g#</button>
-    <button (mousedown)="onMousedown('a#', 0)">a#</button>
-  </div>
-  <div>
-    <button (mousedown)="onMousedown('c', 0)">c</button>
-    <button (mousedown)="onMousedown('d', 0)">d</button>
-    <button (mousedown)="onMousedown('e', 0)">e</button>
-    <button (mousedown)="onMousedown('f', 0)">f</button>
-    <button (mousedown)="onMousedown('g', 0)">g</button>
-    <button (mousedown)="onMousedown('a', 0)">a</button>
-    <button (mousedown)="onMousedown('b', 0)">b</button>
-    <button (mousedown)="onMousedown('c', 1)">c</button>
-  </div>
-</ng-template>
+<div class="Screen">
+  <ng-container *ngIf="getCount() === 0; else ElseBlock">
+    <div class="LogoContainer">
+      <h1 class="Logo">Degree Master</h1>
+      <button class="Button_Start" (click)="onClickStart()">START</button>
+    </div>
+    <div class="CopyrightContainer">
+      <p class="Copyright">© Crescware Inc.</p>
+    </div>
+  </ng-container>
 
-<p>{{ getScore() }}</p>
+  <ng-template #ElseBlock>
+    <div class="ScoreContainer">
+      <p class="Score">
+        {{ getScore() }}
+        <span class="ScoreDecoration">&nbsp;</span>
+      </p>
+    </div>
+    <div class="KeysContainer">
+      <div class="Keys_Upper">
+        <button
+          *ngFor="let vm of getUpperKeys(); trackBy: trackBy"
+          class="Key"
+          [disabled]="vm.disabled"
+          [class.active]="eqTone(vm.tone, activeTone)"
+          (mousedown)="onMousedown(vm.tone)"
+        >
+          &nbsp;
+        </button>
+      </div>
+      <div class="Keys_Lower">
+        <button
+          class="Key"
+          *ngFor="let vm of getLowerKeys(); trackBy: trackBy"
+          [disabled]="vm.disabled"
+          [class.active]="eqTone(vm.tone, activeTone)"
+          (mousedown)="onMousedown(vm.tone)"
+        >
+          &nbsp;
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>
