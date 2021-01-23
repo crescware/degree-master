@@ -63,7 +63,7 @@ export class Series {
   }
 
   private async playSeries(): Promise<void> {
-    await this.tones.reduce(async (prev, tone, i) => {
+    await this.tones.reduce(async (prev, tone) => {
       await prev;
       await this.play(tone, 500);
     }, Promise.resolve());
