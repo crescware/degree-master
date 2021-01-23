@@ -39,6 +39,10 @@ export class AppComponent {
     return this.series?.getCount() ?? 0;
   }
 
+  getScore(): number {
+    return Math.max(0, this.getCount() - 1);
+  }
+
   async onMousedown(n: Note, oct: Oct): Promise<void> {
     if (this.series === null) {
       throw new Error('Invalid game');
