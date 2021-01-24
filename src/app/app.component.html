@@ -8,26 +8,33 @@
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
       <div class="ButtonsContainer">
-        <div>
-          <button class="Button_Start" (click)="onClickStart(basic)">
-            BASIC
-          </button>
-          <button class="Button_Start" (click)="onClickStart(advanced)">
-            ADVANCED
-          </button>
-          <button class="Button_Start" (click)="onClickStart(expert)">
-            EXPERT
-          </button>
-          <button class="Button_Start Button_Oni" (click)="onClickStart(oniBasic)">
-            ONI BASIC
-          </button>
-          <button class="Button_Start Button_Oni" (click)="onClickStart(oniAdvanced)">
-            ONI ADVANCED
-          </button>
-          <button class="Button_Start Button_Oni" (click)="onClickStart(oniExpert)">
-            ONI EXPERT
-          </button>
-        </div>
+        <button class="Button_Start" (click)="onClickStart(basic)">
+          BASIC
+        </button>
+        <button class="Button_Start" (click)="onClickStart(advanced)">
+          ADVANCED
+        </button>
+        <button class="Button_Start" (click)="onClickStart(expert)">
+          EXPERT
+        </button>
+        <button
+          class="Button_Start Button_Oni"
+          (click)="onClickStart(oniBasic)"
+        >
+          ONI BASIC
+        </button>
+        <button
+          class="Button_Start Button_Oni"
+          (click)="onClickStart(oniAdvanced)"
+        >
+          ONI ADVANCED
+        </button>
+        <button
+          class="Button_Start Button_Oni"
+          (click)="onClickStart(oniExpert)"
+        >
+          ONI EXPERT
+        </button>
       </div>
 
       <div *ngIf="midi.isMidiSupported()" class="Midi">
