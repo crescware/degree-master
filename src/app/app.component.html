@@ -4,19 +4,30 @@
 </div>
 
 <div class="Screen">
-  <ng-container *ngIf="getCount() === 0; else ElseBlock">
+  <ng-container *ngIf="getCount() === 0 && !isEnding">
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
       <div class="ButtonsContainer">
-        <button class="Button_Start" (click)="onClickStart(basic)">
-          BASIC
-        </button>
-        <button class="Button_Start" (click)="onClickStart(advanced)">
-          ADVANCED
-        </button>
-        <button class="Button_Start" (click)="onClickStart(expert)">
-          EXPERT
-        </button>
+        <div>
+          <button class="Button_Start" (click)="onClickStart(basic)">
+            BASIC
+          </button>
+          <button class="Button_Start" (click)="onClickStart(advanced)">
+            ADVANCED
+          </button>
+          <button class="Button_Start" (click)="onClickStart(expert)">
+            EXPERT
+          </button>
+          <button class="Button_Start Button_Oni" (click)="onClickStart(oniBasic)">
+            ONI BASIC
+          </button>
+          <button class="Button_Start Button_Oni" (click)="onClickStart(oniAdvanced)">
+            ONI ADVANCED
+          </button>
+          <button class="Button_Start Button_Oni" (click)="onClickStart(oniExpert)">
+            ONI EXPERT
+          </button>
+        </div>
       </div>
 
       <div *ngIf="midi.isMidiSupported()" class="Midi">
@@ -44,10 +55,11 @@
     </div>
   </ng-container>
 
-  <ng-template #ElseBlock>
+  <ng-container *ngIf="1 <= getCount() && !isEnding">
     <div class="ScoreContainer">
-      <p class="Score">
-        {{ getScore() }}
+      <p class="Score" [class.updating]="isUpdatingHighScore()">
+        {{ getCurrentScore() }}
+        <span class="HighScore"> / {{ getCurrentHighScore() }}</span>
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
       <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
@@ -84,5 +96,16 @@
         </button>
       </div>
     </div>
-  </ng-template>
+  </ng-container>
+
+  <ng-container *ngIf="isEnding">
+    <div class="EndingScoreContainer">
+      <p class="EndingScoreP">
+        Your score is <span class="EndingScore">{{ getCurrentScore() }}</span>
+      </p>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickRetry()">RETRY</button>
+      </div>
+    </div>
+  </ng-container>
 </div>

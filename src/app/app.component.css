@@ -66,6 +66,8 @@
 
 .ButtonsContainer {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 64.1vw;
 }
 
 .Button_Start {
@@ -81,6 +83,11 @@
   border: none;
   border-radius: 8px;
   background: #cccccc;
+}
+
+.Button_Oni {
+  background: #442211;
+  color: #cccccc;
 }
 
 .Button_Start:active {
@@ -132,12 +139,20 @@
   position: relative;
   color: white;
   background: black;
-  padding: 3vh 2vw;
+  padding: 2vh 1vw;
   font-size: 2vw;
-  width: 8vw;
+  width: 10vw;
   min-width: 50px;
   text-align: right;
   border: 0.5vw #222222 solid;
+}
+
+.HighScore {
+  font-size: 0.7em;
+}
+
+.updating {
+  color: #fef14a;
 }
 
 .ScoreDecoration {
@@ -203,7 +218,7 @@
   transition-property: background-color, border-color;
   font-size: 2vw;
   text-align: left;
-  padding: 0.5em
+  padding: 0.5em;
 }
 
 .Keys_Upper .Key:nth-child(5n).active,
@@ -249,4 +264,27 @@
 .Key[disabled] {
   border: 2px #ffffff03 solid;
   background: #ffffff09;
+}
+
+.EndingScoreContainer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.EndingScoreP {
+  margin: 0;
+  color: #cccccc;
+  font-weight: normal;
+  font-size: 5vw;
+  margin-bottom: 4vh;
+}
+
+.EndingScore {
+  color: #fef14a;
+  font-weight: normal;
+  font-size: 7vw;
 }

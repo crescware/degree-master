@@ -2,6 +2,7 @@ import { Subject } from 'rxjs';
 import { allTones, Tone } from './tone';
 
 export interface SeriesOptions {
+  id: string;
   coverage: Tone[];
   glossCount: number;
   bottom: Tone;
@@ -41,10 +42,11 @@ export class Series {
     duration: number;
     prefersGloss: boolean;
   }>();
-  readonly destroy$ = new Subject<void>();
-  tones: Tone[] = [];
-  cursor = 0;
-  buttons: Buttons = { upper: [], lower: [] };
+  readonly destroy$ = new Subject<number>();
+  private tones: Tone[] = [];
+  private buttons: Buttons = { upper: [], lower: [] };
+  private cursor = 0;
+  private score = 0;
   private options: SeriesOptions | null = null;
   private duration = 500;
 
@@ -57,7 +59,7 @@ export class Series {
   }
 
   async guess(tone: Tone): Promise<void> {
-    await this.trigger(tone, this.duration);
+    await this.trigger(tone, this.duration, true);
 
     const current = this.tones[this.cursor];
     if (current.eq(tone)) {
@@ -65,6 +67,7 @@ export class Series {
       if (this.cursor === this.getCount()) {
         this.cursor = 0;
         this.addToSeries(this.getNext());
+        this.score += 1;
         setTimeout(() => this.playSeries(), this.duration);
       }
       return;
@@ -76,6 +79,17 @@ export class Series {
 
   getCount(): number {
     return this.tones.length;
+  }
+
+  getScore(): number {
+    return this.score;
+  }
+
+  getId(): string {
+    if (this.options === null) {
+      throw new Error('Failed to instantiate Series');
+    }
+    return this.options.id;
   }
 
   getUpperKeys(): Array<Tone | null> {
@@ -108,15 +122,22 @@ export class Series {
   private async playSeries(): Promise<void> {
     await this.tones.reduce(async (prev, tone) => {
       await prev;
-      await this.trigger(tone, this.duration);
+      if (this.options === null) {
+        throw new Error('Failed to instantiate Series');
+      }
+      const prefersGloss = this.getCount() <= this.options.glossCount;
+      await this.trigger(tone, this.duration, prefersGloss);
     }, Promise.resolve());
   }
 
-  private async trigger(tone: Tone, duration: number): Promise<void> {
+  private async trigger(
+    tone: Tone,
+    duration: number,
+    prefersGloss: boolean
+  ): Promise<void> {
     if (this.options === null) {
       throw new Error('Failed to instantiate Series');
     }
-    const prefersGloss = this.getCount() <= this.options.glossCount;
     this.trigger$.next({ tone, duration, prefersGloss });
     await this.sleep(duration + 10); // 次の発音に移る前に描画を終わらせるために少し余裕を持つ
   }

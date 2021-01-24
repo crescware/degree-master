@@ -2,6 +2,7 @@ import { SeriesOptions } from './series';
 import { note, Tone } from './tone';
 
 export const basic: SeriesOptions = {
+  id: 'basic',
   coverage: [
     new Tone('c', 0),
     new Tone('e', 0),
@@ -14,6 +15,7 @@ export const basic: SeriesOptions = {
 };
 
 export const advanced: SeriesOptions = {
+  id: 'advanced',
   coverage: [
     new Tone('c', 0),
     new Tone('d', 0),
@@ -30,6 +32,7 @@ export const advanced: SeriesOptions = {
 };
 
 export const expert: SeriesOptions = {
+  id: 'expert',
   coverage: [
     ...note.map((v) => new Tone(v, 0)),
     ...note.map((v) => new Tone(v, 1)),
@@ -37,4 +40,22 @@ export const expert: SeriesOptions = {
   glossCount: Infinity,
   bottom: new Tone('b', -1),
   bpm: 130,
+};
+
+export const oniBasic: SeriesOptions = {
+  ...basic,
+  id: 'oniBasic',
+  glossCount: 1,
+};
+
+export const oniAdvanced: SeriesOptions = {
+  ...advanced,
+  id: 'oniAdvanced',
+  glossCount: 1,
+};
+
+export const oniExpert: SeriesOptions = {
+  ...expert,
+  id: 'oniExpert',
+  glossCount: 1,
 };
