@@ -203,6 +203,7 @@
   transition-property: background-color, border-color;
   font-size: 2vw;
   text-align: left;
+  padding: 0.5em
 }
 
 .Keys_Upper .Key:nth-child(5n).active,
