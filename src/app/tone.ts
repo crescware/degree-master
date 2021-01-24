@@ -15,6 +15,10 @@ export const note = [
 export type Note = typeof note[number];
 export type Oct = -1 | 0 | 1;
 
+const freqArr = [...Array(36)].reduce((acc, _, i) => {
+  return acc.concat(110 * 2 ** (i / 12));
+}, [] as number[]).slice(3);
+
 export class Tone {
   constructor(readonly note: Note, readonly oct: Oct) {}
 
@@ -32,6 +36,10 @@ export class Tone {
 
   toString(): string {
     return [this.note, this.oct].join('');
+  }
+
+  getFreq(): number {
+    return freqArr[note.indexOf(this.note) + (this.oct + 1) * 12];
   }
 }
 

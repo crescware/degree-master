@@ -1,80 +1,42 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
+import { fromEvent, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import * as UAParser from 'ua-parser-js';
 
+import { advanced, basic, expert } from './difficulty';
 import { MidiMediator } from './midi-mediator';
 import { Series, SeriesOptions } from './series';
 import { Synth } from './synth';
 import { allTones, note, Tone } from './tone';
 
-const freqArr = [...Array(24)]
-  .reduce((acc, _, i) => {
-    return acc.concat(220 * 2 ** (i / 12));
-  }, [] as number[])
-  .slice(3, 3 + 13);
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  providers: [Synth],
 })
 export class AppComponent {
-  synth: Synth | null = null;
+  readonly destroy$ = new Subject<void>();
+  readonly basic = basic;
+  readonly advanced = advanced;
+  readonly expert = expert;
   series: Series | null = null;
   activeTone: Tone | null = null;
   isPlaying = false;
 
-  readonly basic = {
-    coverage: [
-      new Tone('c', 0),
-      new Tone('e', 0),
-      new Tone('g', 0),
-      new Tone('c', 1),
-    ],
-    // coverage,
-    glossCount: Infinity,
-    bottom: new Tone('b', -1),
-  };
-
-  readonly advanced = {
-    coverage: [
-      new Tone('c', 0),
-      new Tone('d', 0),
-      new Tone('e', 0),
-      new Tone('f', 0),
-      new Tone('g', 0),
-      new Tone('a', 0),
-      new Tone('b', 0),
-      new Tone('c', 1),
-    ],
-    // coverage,
-    glossCount: Infinity,
-    bottom: new Tone('b', -1),
-  };
-
-  readonly expert = {
-    coverage: [
-      ...note.map((v) => new Tone(v, 0)),
-      ...note.map((v) => new Tone(v, 1)),
-    ].slice(0, 13),
-    // coverage,
-    glossCount: Infinity,
-    bottom: new Tone('b', -1),
-  };
-
-  constructor(readonly cd: ChangeDetectorRef, readonly midi: MidiMediator) {}
-
-  ngOnInit(): void {
-    this.synth = new Synth();
-  }
+  constructor(
+    readonly cd: ChangeDetectorRef,
+    readonly synth: Synth,
+    readonly midi: MidiMediator
+  ) {}
 
   onClickStart(options: SeriesOptions): void {
-    this.activeTone = null;
+    this.resetAll();
     this.series = new Series();
 
     this.series.destroy$.subscribe(() => {
       this.wrong();
-      this.midi.updateInput(null);
+      this.resetAll();
       this.cd.detectChanges(); // for MIDI
     });
 
@@ -86,8 +48,7 @@ export class AppComponent {
       .pipe(takeUntil(this.series.destroy$))
       .subscribe((v) => this.triggerTone(allTones[v - 48]));
 
-    console.log(new UAParser().getOS());
-
+    this.prepareKeyboardBinding();
     this.series.startSeries(options);
   }
 
@@ -141,6 +102,13 @@ export class AppComponent {
     return tone.toString();
   }
 
+  private resetAll() {
+    this.activeTone = null;
+    this.series = null;
+    this.midi.updateInput(null);
+    this.destroy$.next();
+  }
+
   private triggerTone(tone: Tone | null) {
     if (tone === null) {
       return; // noop
@@ -161,10 +129,7 @@ export class AppComponent {
       this.activeTone = tone;
     }
     this.cd.detectChanges(); // for MIDI
-    await this.synth?.play(
-      freqArr[note.indexOf(tone.note) + tone.oct * 12],
-      duration
-    );
+    await this.synth?.play(tone.getFreq(), duration);
 
     requestAnimationFrame(() => {
       this.isPlaying = false;
@@ -174,7 +139,28 @@ export class AppComponent {
   }
 
   private async wrong(): Promise<void> {
-    await this.synth?.play(103.82, 100);
-    await this.synth?.play(103.82, 600);
+    await this.synth?.play(new Tone('f#', -1).getFreq(), 100);
+    await this.synth?.play(new Tone('f#', -1).getFreq(), 600);
+  }
+
+  private prepareKeyboardBinding() {
+    fromEvent<KeyboardEvent>(document, 'keydown')
+      .pipe(
+        map((v) => v.key),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((v) => {
+        if ('wertyuio'.includes(v)) {
+          const tone = this.series?.getUpperKeys()[
+            [...'wertyuio'].findIndex((char) => char === v)
+          ];
+          this.triggerTone(tone ?? null);
+          return;
+        }
+        const tone = this.series?.getLowerKeys()[
+          [...'asdfghjkl'].findIndex((char) => char === v)
+        ];
+        this.triggerTone(tone ?? null);
+      });
   }
 }

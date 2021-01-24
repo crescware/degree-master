@@ -1,3 +1,5 @@
+import { Injectable } from '@angular/core';
+
 interface Window {
   webkitAudioContext: typeof AudioContext;
 }
@@ -11,6 +13,7 @@ function makeHash(): string {
   ).substring(0, n);
 }
 
+@Injectable()
 export class Synth {
   playCount = 0;
   ctx: AudioContext | null = null;
