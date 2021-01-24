@@ -25,6 +25,7 @@
               {{ v }}
             </option>
           </select>
+          <span class="Connected" *ngIf="midi.isEnabled()">Connected</span>
         </label>
       </div>
     </div>
@@ -39,6 +40,9 @@
         {{ getScore() }}
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
+      <div class="SoundIndicator" [class.active]="activeTone !== null">
+        &nbsp;
+      </div>
     </div>
     <div class="KeysContainer">
       <div class="Keys_Upper">

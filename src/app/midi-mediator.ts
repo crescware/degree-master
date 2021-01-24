@@ -16,10 +16,8 @@ export class MidiMediator {
 
     this.midiMessage$
       .pipe(
-        map((v) => {
-          return [...v.data].map((v) => v.toString(16));
-        }),
-        filter(([m]) => m === '90'), // note on
+        map((v) => [...v.data].map((v) => v.toString(16))),
+        filter(([m, , d2]) => m === '90' && 1 <= parseInt(d2, 16)), // note on
         map(([, d1]) => parseInt(d1, 16)) // note number
       )
       .subscribe((v) => this.noteNumber$.next(v));
@@ -50,6 +48,7 @@ export class MidiMediator {
       this.input = null;
       return;
     }
+
     this.input = this.inputs[i];
     this.input.onmidimessage = (e: MIDIMessageEvent) => {
       this.midiMessage$.next(e);
