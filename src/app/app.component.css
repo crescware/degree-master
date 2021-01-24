@@ -75,6 +75,11 @@
   background: #fef14a;
 }
 
+.Midi {
+  color: #cccccc;
+  margin-top: 2vh;
+}
+
 .CopyrightContainer {
   pointer-events: none;
   position: absolute;
