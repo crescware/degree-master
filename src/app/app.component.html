@@ -7,7 +7,17 @@
   <ng-container *ngIf="getCount() === 0; else ElseBlock">
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
-      <button class="Button_Start" (click)="onClickStart()">START</button>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickStart(basic)">
+          BASIC
+        </button>
+        <button class="Button_Start" (click)="onClickStart(advanced)">
+          ADVANCED
+        </button>
+        <button class="Button_Start" (click)="onClickStart(expert)">
+          EXPERT
+        </button>
+      </div>
 
       <div *ngIf="midi.isMidiSupported()" class="Midi">
         <label for="inputs">
@@ -40,31 +50,37 @@
         {{ getScore() }}
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
-      <div class="SoundIndicator" [class.active]="activeTone !== null">
-        &nbsp;
-      </div>
+      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
     </div>
     <div class="KeysContainer">
       <div class="Keys_Upper">
         <button
-          *ngFor="let vm of getUpperKeys(); trackBy: trackBy"
+          *ngFor="
+            let tone of series.getUpperKeys();
+            let i = index;
+            trackBy: trackBy
+          "
           class="Key"
-          [disabled]="vm.disabled"
-          [class.active]="eqTone(vm.tone, activeTone)"
-          (mousedown)="onMousedown(vm.tone)"
+          [disabled]="tone === null"
+          [class.active]="eqTone(tone, activeTone)"
+          (mousedown)="onMousedown(tone)"
         >
-          &nbsp;
+          {{ getKeyLabel("upper", i) }}
         </button>
       </div>
       <div class="Keys_Lower">
         <button
           class="Key"
-          *ngFor="let vm of getLowerKeys(); trackBy: trackBy"
-          [disabled]="vm.disabled"
-          [class.active]="eqTone(vm.tone, activeTone)"
-          (mousedown)="onMousedown(vm.tone)"
+          *ngFor="
+            let tone of series.getLowerKeys();
+            let i = index;
+            trackBy: trackBy
+          "
+          [disabled]="tone === null"
+          [class.active]="eqTone(tone, activeTone)"
+          (mousedown)="onMousedown(tone)"
         >
-          &nbsp;
+          {{ getKeyLabel("lower", i) }}
         </button>
       </div>
     </div>

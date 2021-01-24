@@ -1,28 +1,17 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
+import * as UAParser from 'ua-parser-js';
 
 import { MidiMediator } from './midi-mediator';
-import { Series } from './series';
+import { Series, SeriesOptions } from './series';
 import { Synth } from './synth';
-import { note, Tone } from './tone';
+import { allTones, note, Tone } from './tone';
 
 const freqArr = [...Array(24)]
   .reduce((acc, _, i) => {
     return acc.concat(220 * 2 ** (i / 12));
   }, [] as number[])
   .slice(3, 3 + 13);
-
-interface EnabledKeyViewModel {
-  disabled: false;
-  tone: Tone;
-}
-
-interface DisabledKeyViewModel {
-  disabled: true;
-  tone: null;
-}
-
-type KeyViewModel = EnabledKeyViewModel | DisabledKeyViewModel;
 
 @Component({
   selector: 'app-root',
@@ -33,7 +22,45 @@ export class AppComponent {
   synth: Synth | null = null;
   series: Series | null = null;
   activeTone: Tone | null = null;
-  private coverage: Tone[] = [];
+  isPlaying = false;
+
+  readonly basic = {
+    coverage: [
+      new Tone('c', 0),
+      new Tone('e', 0),
+      new Tone('g', 0),
+      new Tone('c', 1),
+    ],
+    // coverage,
+    glossCount: Infinity,
+    bottom: new Tone('b', -1),
+  };
+
+  readonly advanced = {
+    coverage: [
+      new Tone('c', 0),
+      new Tone('d', 0),
+      new Tone('e', 0),
+      new Tone('f', 0),
+      new Tone('g', 0),
+      new Tone('a', 0),
+      new Tone('b', 0),
+      new Tone('c', 1),
+    ],
+    // coverage,
+    glossCount: Infinity,
+    bottom: new Tone('b', -1),
+  };
+
+  readonly expert = {
+    coverage: [
+      ...note.map((v) => new Tone(v, 0)),
+      ...note.map((v) => new Tone(v, 1)),
+    ].slice(0, 13),
+    // coverage,
+    glossCount: Infinity,
+    bottom: new Tone('b', -1),
+  };
 
   constructor(readonly cd: ChangeDetectorRef, readonly midi: MidiMediator) {}
 
@@ -41,7 +68,7 @@ export class AppComponent {
     this.synth = new Synth();
   }
 
-  onClickStart(): void {
+  onClickStart(options: SeriesOptions): void {
     this.activeTone = null;
     this.series = new Series();
 
@@ -53,60 +80,32 @@ export class AppComponent {
 
     this.series.trigger$
       .pipe(takeUntil(this.series.destroy$))
-      .subscribe((v) => this.play(v.tone, v.duration));
-
-    this.coverage = [
-      ...note.map((v) => [v, 0] as Tone),
-      ...note.map((v) => [v, 1] as Tone),
-    ].slice(0, 13);
+      .subscribe((v) => this.play(v.tone, v.duration, v.prefersGloss));
 
     this.midi.noteNumber$
       .pipe(takeUntil(this.series.destroy$))
-      .subscribe((v) => {
-        switch (v) {
-          case 60:
-            this.triggerTone(['c', 0]);
-            return;
-          case 61:
-            this.triggerTone(['c#', 0]);
-            return;
-          case 62:
-            this.triggerTone(['d', 0]);
-            return;
-          case 63:
-            this.triggerTone(['d#', 0]);
-            return;
-          case 64:
-            this.triggerTone(['e', 0]);
-            return;
-          case 65:
-            this.triggerTone(['f', 0]);
-            return;
-          case 66:
-            this.triggerTone(['f#', 0]);
-            return;
-          case 67:
-            this.triggerTone(['g', 0]);
-            return;
-          case 68:
-            this.triggerTone(['g#', 0]);
-            return;
-          case 69:
-            this.triggerTone(['a', 0]);
-            return;
-          case 70:
-            this.triggerTone(['a#', 0]);
-            return;
-          case 71:
-            this.triggerTone(['b', 0]);
-            return;
-          case 72:
-            this.triggerTone(['c', 1]);
-            return;
-        }
-      });
+      .subscribe((v) => this.triggerTone(allTones[v - 48]));
 
-    this.series.startSeries(this.coverage);
+    console.log(new UAParser().getOS());
+
+    this.series.startSeries(options);
+  }
+
+  getKeyLabel(position: 'upper' | 'lower', i: number): string {
+    const os = new UAParser().getOS().name ?? '';
+    const isMobile = os.includes('iOS') || os.includes('Android');
+    if (isMobile) {
+      return '';
+    }
+
+    switch (position) {
+      case 'upper':
+        return 'wertyuio'[i];
+      case 'lower':
+        return 'asdfghjkl'[i];
+      default:
+        throw new Error('Invalid position');
+    }
   }
 
   getCount(): number {
@@ -115,49 +114,6 @@ export class AppComponent {
 
   getScore(): number {
     return Math.max(0, this.getCount() - 1);
-  }
-
-  getUpperKeys(): KeyViewModel[] {
-    const keys = this.coverage.filter((v) => {
-      return ['c#', 'd#', 'f#', 'g#', 'a#'].includes(v[0]);
-    });
-    if (keys[0][0] === 'c#') {
-      return [
-        { disabled: true, tone: null },
-        { disabled: true, tone: null },
-        ...keys.reduce((acc, v): KeyViewModel[] => {
-          if (v[0] === 'd#') {
-            return acc.concat([
-              { disabled: false, tone: v },
-              { disabled: true, tone: null },
-            ]);
-          }
-          return acc.concat({ disabled: false, tone: v });
-        }, [] as KeyViewModel[]),
-        { disabled: true, tone: null },
-        { disabled: true, tone: null },
-      ];
-    }
-    return [];
-  }
-
-  getLowerKeys(): KeyViewModel[] {
-    const keys = this.coverage.filter((v) => {
-      return ['c', 'd', 'e', 'f', 'g', 'a', 'b'].includes(v[0]);
-    });
-    if (keys[0][0] === 'c') {
-      return [
-        { disabled: true, tone: null },
-        { disabled: true, tone: null },
-        ...keys.map(
-          (v): EnabledKeyViewModel => {
-            return { disabled: false, tone: v };
-          }
-        ),
-        { disabled: true, tone: null },
-      ];
-    }
-    return [];
   }
 
   onChangeMidiInput(ev: Event): void {
@@ -178,11 +134,11 @@ export class AppComponent {
     if (a === null || b === null) {
       return false;
     }
-    return a[0] === b[0] && a[1] === b[1];
+    return a.eq(b);
   }
 
-  trackBy(vm: KeyViewModel): string {
-    return JSON.stringify(vm);
+  trackBy(tone: Tone): string {
+    return tone.toString();
   }
 
   private triggerTone(tone: Tone | null) {
@@ -195,12 +151,23 @@ export class AppComponent {
     this.series.guess(tone);
   }
 
-  private async play([n, oct]: Tone, duration: number): Promise<void> {
-    this.activeTone = [n, oct];
+  private async play(
+    tone: Tone,
+    duration: number,
+    prefersGloss: boolean
+  ): Promise<void> {
+    this.isPlaying = true;
+    if (prefersGloss) {
+      this.activeTone = tone;
+    }
     this.cd.detectChanges(); // for MIDI
-    await this.synth?.play(freqArr[note.indexOf(n) + oct * 12], duration);
+    await this.synth?.play(
+      freqArr[note.indexOf(tone.note) + tone.oct * 12],
+      duration
+    );
 
     requestAnimationFrame(() => {
+      this.isPlaying = false;
       this.activeTone = null;
       this.cd.detectChanges(); // for MIDI
     });

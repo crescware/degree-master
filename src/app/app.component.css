@@ -64,12 +64,18 @@
   margin-bottom: 4vh;
 }
 
+.ButtonsContainer {
+  display: flex;
+}
+
 .Button_Start {
+  margin: 1vh;
   width: 20vw;
   min-width: 140px;
   height: 10vh;
   max-height: 100px;
-  font-size: max(18px, min(3vh, 34px));
+  font-size: max(18px, min(2.5vh, 32px));
+  line-height: 1;
   -webkit-appearance: none;
   -moz-appearance: none;
   border: none;
@@ -160,9 +166,9 @@
 }
 
 .SoundIndicator.active {
-  background: #E5F4F3;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #001DEC 0 -1px 9px,
-  #4C89F1 0 10px 20px;
+  background: #e5f4f3;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #001dec 0 -1px 9px,
+    #4c89f1 0 10px 20px;
 }
 
 .KeysContainer {
@@ -186,7 +192,7 @@
 
 .Key {
   margin: 1.2%;
-  width: 7%;
+  width: 8.6%;
   height: 12vh;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -195,6 +201,8 @@
   background: #aaaaaa;
   transition-duration: 0.2s;
   transition-property: background-color, border-color;
+  font-size: 2vw;
+  text-align: left;
 }
 
 .Keys_Upper .Key:nth-child(5n).active,
