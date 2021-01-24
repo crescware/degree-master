@@ -8,6 +8,26 @@
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
       <button class="Button_Start" (click)="onClickStart()">START</button>
+
+      <div *ngIf="midi.isMidiSupported()" class="Midi">
+        <label for="inputs">
+          MIDI Source:
+          <select
+            name="inputs"
+            id="inputs"
+            (change)="onChangeMidiInput($event)"
+          >
+            <option value="null">&lt;Disabled&gt;</option>
+            <option
+              *ngFor="let v of midi.getInputLabels(); let i = index"
+              [value]="i"
+            >
+              {{ v }}
+            </option>
+          </select>
+          <span class="Connected" *ngIf="midi.isEnabled()">Connected</span>
+        </label>
+      </div>
     </div>
     <div class="CopyrightContainer">
       <p class="Copyright">© Crescware Inc.</p>
@@ -20,6 +40,9 @@
         {{ getScore() }}
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
+      <div class="SoundIndicator" [class.active]="activeTone !== null">
+        &nbsp;
+      </div>
     </div>
     <div class="KeysContainer">
       <div class="Keys_Upper">
