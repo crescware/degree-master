@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { Tone } from './tone';
 
 export class Series {
-  readonly playTone$ = new Subject<{ tone: Tone; duration: number }>();
+  readonly trigger$ = new Subject<{ tone: Tone; duration: number }>();
   readonly destroy$ = new Subject<void>();
   tones: Tone[] = [];
   cursor = 0;
@@ -15,7 +15,7 @@ export class Series {
   }
 
   async guess(tone: Tone): Promise<void> {
-    await this.play(tone, 500);
+    await this.trigger(tone, 500);
 
     const current = this.tones[this.cursor];
     if (current[0] === tone[0] && current[1] === tone[1]) {
@@ -49,14 +49,13 @@ export class Series {
   private async playSeries(): Promise<void> {
     await this.tones.reduce(async (prev, tone) => {
       await prev;
-      await this.play(tone, 500);
+      await this.trigger(tone, 500);
     }, Promise.resolve());
   }
 
-  private async play(tone: Tone, duration: number): Promise<void> {
-    const gap = 10; // 前のオシレーターインスタンス破棄時間を設けるため
-    this.playTone$.next({ tone, duration: duration - gap });
-    await this.sleep(duration + gap);
+  private async trigger(tone: Tone, duration: number): Promise<void> {
+    this.trigger$.next({ tone, duration });
+    await this.sleep(duration + 10); // 次の発音に移る前に描画を終わらせるために少し余裕を持つ
   }
 
   private sleep(ms: number): Promise<void> {

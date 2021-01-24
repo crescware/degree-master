@@ -51,7 +51,7 @@ export class AppComponent {
       this.cd.detectChanges(); // for MIDI
     });
 
-    this.series.playTone$
+    this.series.trigger$
       .pipe(takeUntil(this.series.destroy$))
       .subscribe((v) => this.play(v.tone, v.duration));
 
