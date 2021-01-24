@@ -139,8 +139,8 @@ export class AppComponent {
   }
 
   private async wrong(): Promise<void> {
-    await this.synth?.play(new Tone('f#', -1).getFreq(), 100);
-    await this.synth?.play(new Tone('f#', -1).getFreq(), 600);
+    await this.synth?.play(103.82, 100);
+    await this.synth?.play(103.82, 600);
   }
 
   private prepareKeyboardBinding() {

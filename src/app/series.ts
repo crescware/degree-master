@@ -5,11 +5,34 @@ export interface SeriesOptions {
   coverage: Tone[];
   glossCount: number;
   bottom: Tone;
+  bpm: number;
 }
 
 export interface Buttons {
   upper: Array<Tone | null>;
   lower: Array<Tone | null>;
+}
+
+function buildButtons(options: SeriesOptions): Buttons {
+  const i = allTones.findIndex((v) => v.eq(options.bottom));
+  const range = allTones.slice(i, i + 14);
+  return range.reduce(
+    (acc, tone) => {
+      const isEnabled = options.coverage.find((cover) => cover.eq(tone));
+      if (tone.isSameNote('e') || tone.isSameNote('b')) {
+        acc.lower = acc.lower.concat(isEnabled ? tone : null);
+        acc.upper = acc.upper.concat(null);
+        return acc;
+      }
+      if (tone.isUpperKey()) {
+        acc.upper = acc.upper.concat(isEnabled ? tone : null);
+        return acc;
+      }
+      acc.lower = acc.lower.concat(isEnabled ? tone : null);
+      return acc;
+    },
+    { upper: [], lower: [] } as Buttons
+  );
 }
 
 export class Series {
@@ -23,40 +46,18 @@ export class Series {
   cursor = 0;
   buttons: Buttons = { upper: [], lower: [] };
   private options: SeriesOptions | null = null;
+  private duration = 500;
 
   startSeries(options: SeriesOptions): void {
     this.options = options;
-
-    const i = allTones.findIndex((v) => v.eq(options.bottom));
-    const range = allTones.slice(i, i + 14);
-    console.log(range);
-    this.buttons = range.reduce(
-      (acc, tone) => {
-        const isEnabled = options.coverage.find((cover) => cover.eq(tone));
-        if (tone.isSameNote('e') || tone.isSameNote('b')) {
-          acc.lower = acc.lower.concat(isEnabled ? tone : null);
-          acc.upper = acc.upper.concat(null);
-          return acc;
-        }
-        if (tone.isUpperKey()) {
-          acc.upper = acc.upper.concat(isEnabled ? tone : null);
-          return acc;
-        }
-        acc.lower = acc.lower.concat(isEnabled ? tone : null);
-        return acc;
-      },
-      { upper: [], lower: [] } as {
-        upper: Array<Tone | null>;
-        lower: Array<Tone | null>;
-      }
-    );
-
+    this.buttons = buildButtons(options);
+    this.duration = 60000 / options.bpm;
     this.addToSeries(this.getNext());
-    setTimeout(() => this.playSeries(), 500);
+    setTimeout(() => this.playSeries(), this.duration);
   }
 
   async guess(tone: Tone): Promise<void> {
-    await this.trigger(tone, 500);
+    await this.trigger(tone, this.duration);
 
     const current = this.tones[this.cursor];
     if (current.eq(tone)) {
@@ -64,7 +65,7 @@ export class Series {
       if (this.cursor === this.getCount()) {
         this.cursor = 0;
         this.addToSeries(this.getNext());
-        setTimeout(() => this.playSeries(), 500);
+        setTimeout(() => this.playSeries(), this.duration);
       }
       return;
     }
@@ -107,7 +108,7 @@ export class Series {
   private async playSeries(): Promise<void> {
     await this.tones.reduce(async (prev, tone) => {
       await prev;
-      await this.trigger(tone, 500);
+      await this.trigger(tone, this.duration);
     }, Promise.resolve());
   }
 

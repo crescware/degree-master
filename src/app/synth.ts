@@ -17,8 +17,11 @@ function makeHash(): string {
 export class Synth {
   playCount = 0;
   ctx: AudioContext | null = null;
-  gainEnvelope: GainNode | null = null;
-  oscGroup: Array<{ hash: string; osc: OscillatorNode }> = [];
+  oscGroup: Array<{
+    hash: string;
+    osc: OscillatorNode;
+    gainEnvelope: GainNode;
+  }> = [];
 
   constructor() {
     this.init();
@@ -35,15 +38,13 @@ export class Synth {
       }
       return new AudioContext();
     })();
-    this.gainEnvelope = this.ctx.createGain();
-    this.gainEnvelope.connect(this.ctx.destination);
   }
 
-  private getInstances(): [AudioContext, GainNode] {
-    if (this.ctx === null || this.gainEnvelope === null) {
+  private getAudioContext(): AudioContext {
+    if (this.ctx === null) {
       throw new Error('Invalid instantiation');
     }
-    return [this.ctx, this.gainEnvelope];
+    return this.ctx;
   }
 
   private getOscillator(hash_: string): OscillatorNode {
@@ -54,20 +55,32 @@ export class Synth {
     return found.osc;
   }
 
+  private getGainEnvelope(hash_: string): GainNode {
+    const found = this.oscGroup.find(({ hash }) => hash === hash_);
+    if (!found) {
+      throw new Error(oscillatorNotFoundError);
+    }
+    return found.gainEnvelope;
+  }
+
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private createNewOscillator(hash_: string): void {
-    if (this.ctx === null || this.gainEnvelope === null) {
+    if (this.ctx === null) {
       throw new Error('Invalid instantiation');
     }
     const i = this.oscGroup.findIndex(({ hash }) => hash === hash_);
     const osc = this.ctx.createOscillator();
+    const gainEnvelope = this.ctx.createGain();
+    gainEnvelope.connect(this.ctx.destination);
     osc.type = 'sine';
-    osc.connect(this.gainEnvelope);
+    osc.connect(gainEnvelope);
     if (i < 0) {
-      this.oscGroup = this.oscGroup.concat([{ hash: hash_, osc }]);
+      this.oscGroup = this.oscGroup.concat([
+        { hash: hash_, osc, gainEnvelope },
+      ]);
       return;
     }
     this.oscGroup[i].osc = osc;
@@ -83,7 +96,7 @@ export class Synth {
       await this.sleep(1); // 別スタックにするため
     }
 
-    const [ctx, gainEnvelope] = this.getInstances();
+    const ctx = this.getAudioContext();
     let osc: OscillatorNode;
     try {
       osc = this.getOscillator(hash);
@@ -97,24 +110,27 @@ export class Synth {
     osc.frequency.value = hz;
 
     const t1 = ctx.currentTime;
+    const gainEnvelope = this.getGainEnvelope(hash);
     gainEnvelope.gain.cancelScheduledValues(t1);
     gainEnvelope.gain.setValueAtTime(0, t1);
-    gainEnvelope.gain.linearRampToValueAtTime(1, t1 + 0.001);
+    // vol 1だとクリップする
+    gainEnvelope.gain.linearRampToValueAtTime(0.7, t1 + 0.001);
 
     this.playCount += 1;
     osc.start();
 
     const releaseMs = Math.max(1, Math.min(200, durationMs));
     await this.sleep(durationMs - releaseMs);
-    await this.release(releaseMs);
+    await this.release(hash, releaseMs);
 
     this.playCount -= 1;
     this.destroyOscillator(hash);
   }
 
-  private async release(releaseMs: number): Promise<void> {
-    const [ctx, gainEnvelope] = this.getInstances();
+  private async release(hash: string, releaseMs: number): Promise<void> {
+    const ctx = this.getAudioContext();
 
+    const gainEnvelope = this.getGainEnvelope(hash);
     const t2 = ctx.currentTime;
     gainEnvelope.gain.setValueAtTime(gainEnvelope.gain.value, t2);
     gainEnvelope.gain.linearRampToValueAtTime(0, t2 + releaseMs / 1000);
@@ -125,7 +141,7 @@ export class Synth {
     this.oscGroup
       .filter(({ hash }) => hash !== hash_)
       .reduce(async (prev, { hash }) => {
-        await this.release(100);
+        await this.release(hash, 100);
         this.destroyOscillator(hash);
       }, Promise.resolve());
   }
