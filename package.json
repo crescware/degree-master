@@ -1,6 +1,6 @@
 {
-  "name": "web-music-quiz",
-  "version": "0.0.0",
+  "name": "degree-master",
+  "version": "1.0.0-beta.0",
   "dependencies": {
     "@angular/animations": "~11.0.9",
     "@angular/common": "~11.0.9",
@@ -12,6 +12,7 @@
     "@angular/router": "~11.0.9",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
+    "ua-parser-js": "^0.7.23",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
@@ -21,6 +22,8 @@
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
+    "@types/ua-parser-js": "^0.7.35",
+    "@types/webmidi": "^2.0.4",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",

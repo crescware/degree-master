@@ -1,0 +1,88 @@
+<div class="Background">
+  <div class="Frame_Left"></div>
+  <div class="Frame_Right"></div>
+</div>
+
+<div class="Screen">
+  <ng-container *ngIf="getCount() === 0; else ElseBlock">
+    <div class="LogoContainer">
+      <h1 class="Logo">Degree Master</h1>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickStart(basic)">
+          BASIC
+        </button>
+        <button class="Button_Start" (click)="onClickStart(advanced)">
+          ADVANCED
+        </button>
+        <button class="Button_Start" (click)="onClickStart(expert)">
+          EXPERT
+        </button>
+      </div>
+
+      <div *ngIf="midi.isMidiSupported()" class="Midi">
+        <label for="inputs">
+          MIDI Source:
+          <select
+            name="inputs"
+            id="inputs"
+            (change)="onChangeMidiInput($event)"
+          >
+            <option value="null">&lt;Disabled&gt;</option>
+            <option
+              *ngFor="let v of midi.getInputLabels(); let i = index"
+              [value]="i"
+            >
+              {{ v }}
+            </option>
+          </select>
+          <span class="Connected" *ngIf="midi.isEnabled()">Connected</span>
+        </label>
+      </div>
+    </div>
+    <div class="CopyrightContainer">
+      <p class="Copyright">© Crescware Inc.</p>
+    </div>
+  </ng-container>
+
+  <ng-template #ElseBlock>
+    <div class="ScoreContainer">
+      <p class="Score">
+        {{ getScore() }}
+        <span class="ScoreDecoration">&nbsp;</span>
+      </p>
+      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
+    </div>
+    <div class="KeysContainer">
+      <div class="Keys_Upper">
+        <button
+          *ngFor="
+            let tone of series.getUpperKeys();
+            let i = index;
+            trackBy: trackBy
+          "
+          class="Key"
+          [disabled]="tone === null"
+          [class.active]="eqTone(tone, activeTone)"
+          (mousedown)="onMousedown(tone)"
+        >
+          {{ getKeyLabel("upper", i) }}
+        </button>
+      </div>
+      <div class="Keys_Lower">
+        <button
+          class="Key"
+          *ngFor="
+            let tone of series.getLowerKeys();
+            let i = index;
+            trackBy: trackBy
+          "
+          [disabled]="tone === null"
+          [class.active]="eqTone(tone, activeTone)"
+          (mousedown)="onMousedown(tone)"
+        >
+          {{ getKeyLabel("lower", i) }}
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,252 @@
+.Background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    0deg,
+    #303030 0%,
+    #404040 2%,
+    #505050 98%,
+    #777777 100%
+  );
+}
+
+.Frame_Left,
+.Frame_Right {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2vw;
+  max-width: 20px;
+  background: linear-gradient(
+    0deg,
+    #222222 0%,
+    #303030 3%,
+    #404040 97%,
+    #666666 100%
+  );
+}
+
+.Frame_Left {
+  left: 0;
+  border-right: 2px solid #232323;
+}
+
+.Frame_Right {
+  right: 0;
+  border-left: 2px solid #292929;
+}
+
+.Screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.LogoContainer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.Logo {
+  margin: 0;
+  color: #fef14a;
+  font-weight: normal;
+  font-size: 7vw;
+  margin-bottom: 4vh;
+}
+
+.ButtonsContainer {
+  display: flex;
+}
+
+.Button_Start {
+  margin: 1vh;
+  width: 20vw;
+  min-width: 140px;
+  height: 10vh;
+  max-height: 100px;
+  font-size: max(18px, min(2.5vh, 32px));
+  line-height: 1;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  border-radius: 8px;
+  background: #cccccc;
+}
+
+.Button_Start:active {
+  background: #fef14a;
+}
+
+.Midi {
+  color: #cccccc;
+  margin-top: 2vh;
+}
+
+.Connected {
+  display: inline-block;
+  margin-left: 0.5em;
+}
+
+.CopyrightContainer {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 2vh;
+  font-size: 2vw;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.Copyright {
+  color: #cccccc;
+  position: relative;
+  bottom: 0;
+}
+
+.ScoreContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.Score {
+  position: relative;
+  color: white;
+  background: black;
+  padding: 3vh 2vw;
+  font-size: 2vw;
+  width: 8vw;
+  min-width: 50px;
+  text-align: right;
+  border: 0.5vw #222222 solid;
+}
+
+.ScoreDecoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  background: linear-gradient(
+    180deg,
+    #ffffff11 0%,
+    #ffffff22 50%,
+    #00000044 51%
+  );
+  width: 100%;
+  height: 100%;
+}
+
+.SoundIndicator {
+  margin-left: 2vw;
+  width: 1.2vw;
+  height: 1.2vw; /* square */
+  min-width: 10px;
+  min-height: 10px;
+  background: #222222;
+  border-radius: 1000px;
+}
+
+.SoundIndicator.active {
+  background: #e5f4f3;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #001dec 0 -1px 9px,
+    #4c89f1 0 10px 20px;
+}
+
+.KeysContainer {
+  position: absolute;
+  top: 0;
+  left: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 80px);
+  height: 100%;
+}
+
+.Keys_Upper,
+.Keys_Lower {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.Key {
+  margin: 1.2%;
+  width: 8.6%;
+  height: 12vh;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px #aaa solid;
+  border-radius: 8px;
+  background: #aaaaaa;
+  transition-duration: 0.2s;
+  transition-property: background-color, border-color;
+  font-size: 2vw;
+  text-align: left;
+  padding: 0.5em
+}
+
+.Keys_Upper .Key:nth-child(5n).active,
+.Keys_Lower .Key:nth-child(5n + 3).active {
+  border: 2px #fff solid;
+  background: #dc6c2a;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 1).active,
+.Keys_Lower .Key:nth-child(5n + 4).active {
+  border: 2px #fff solid;
+  background: #fef14a;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 2).active,
+.Keys_Lower .Key:nth-child(5n).active {
+  border: 2px #fff solid;
+  background: #50aa7f;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 3).active,
+.Keys_Lower .Key:nth-child(5n + 1).active {
+  border: 2px #fff solid;
+  background: #3e69af;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Keys_Upper .Key:nth-child(5n + 4).active,
+.Keys_Lower .Key:nth-child(5n + 2).active {
+  border: 2px #fff solid;
+  background: #80c6ef;
+  transition-duration: 0.05s;
+  transition-property: background-color, border-color;
+}
+
+.Key[disabled] {
+  border: 2px #ffffff03 solid;
+  background: #ffffff09;
+}
