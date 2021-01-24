@@ -153,6 +153,8 @@
   margin-left: 2vw;
   width: 1.2vw;
   height: 1.2vw; /* square */
+  min-width: 10px;
+  min-height: 10px;
   background: #222222;
   border-radius: 1000px;
 }
