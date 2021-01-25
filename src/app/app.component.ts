@@ -55,6 +55,8 @@ export class AppComponent {
     master: 0,
     isUnlocked: false,
   };
+  gameMode: 0 | 1 | 2 = 0; // 0 = normal, 1 = oni, 2 = master
+  gameModeIcon = ['👼', '👹', '🏆'];
 
   constructor(
     readonly cd: ChangeDetectorRef,
@@ -124,6 +126,28 @@ export class AppComponent {
 
   isUpdatingHighScore(): boolean {
     return this.getOriginalHighScore() < (this.series?.getScore() ?? 0);
+  }
+
+  onClickNextMode(): void {
+    if (this.gameMode === 0) {
+      this.gameMode = 1;
+      return;
+    }
+    if (this.gameMode === 1) {
+      this.gameMode = 0;
+      return;
+    }
+    // noop
+  }
+
+  getNextIcon(): string {
+    if (this.gameMode === 0) {
+      return this.gameModeIcon[1];
+    }
+    if (this.gameMode === 1) {
+      return this.gameModeIcon[0];
+    }
+    return '';
   }
 
   onChangeMidiInput(ev: Event): void {

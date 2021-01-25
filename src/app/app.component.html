@@ -5,36 +5,47 @@
 
 <div class="Screen">
   <ng-container *ngIf="getCount() === 0 && !isEnding">
+    <div class="ScoreContainer">
+      <p (click)="onClickNextMode()" class="Score ScoreCenter">
+        {{ getNextIcon() }}
+      </p>
+      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
+    </div>
+
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
       <div class="ButtonsContainer">
-        <button class="Button_Start" (click)="onClickStart(basic)">
-          BASIC
-        </button>
-        <button class="Button_Start" (click)="onClickStart(advanced)">
-          ADVANCED
-        </button>
-        <button class="Button_Start" (click)="onClickStart(expert)">
-          EXPERT
-        </button>
-        <button
-          class="Button_Start Button_Oni"
-          (click)="onClickStart(oniBasic)"
-        >
-          ONI BASIC
-        </button>
-        <button
-          class="Button_Start Button_Oni"
-          (click)="onClickStart(oniAdvanced)"
-        >
-          ONI ADVANCED
-        </button>
-        <button
-          class="Button_Start Button_Oni"
-          (click)="onClickStart(oniExpert)"
-        >
-          ONI EXPERT
-        </button>
+        <ng-container *ngIf="gameMode === 0">
+          <button class="Button_Start" (click)="onClickStart(basic)">
+            BASIC
+          </button>
+          <button class="Button_Start" (click)="onClickStart(advanced)">
+            ADVANCED
+          </button>
+          <button class="Button_Start" (click)="onClickStart(expert)">
+            EXPERT
+          </button>
+        </ng-container>
+        <ng-container *ngIf="gameMode === 1">
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniBasic)"
+          >
+            ONI BASIC
+          </button>
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniAdvanced)"
+          >
+            ONI ADVANCED
+          </button>
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniExpert)"
+          >
+            ONI EXPERT
+          </button>
+        </ng-container>
       </div>
 
       <div *ngIf="midi.isMidiSupported()" class="Midi">
@@ -106,6 +117,15 @@
   </ng-container>
 
   <ng-container *ngIf="isEnding">
+    <div class="ScoreContainer">
+      <p class="Score" [class.updating]="isUpdatingHighScore()">
+        {{ getCurrentScore() }}
+        <span class="HighScore"> / {{ getCurrentHighScore() }}</span>
+        <span class="ScoreDecoration">&nbsp;</span>
+      </p>
+      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
+    </div>
+
     <div class="EndingScoreContainer">
       <p class="EndingScoreP">
         Your score is <span class="EndingScore">{{ getCurrentScore() }}</span>

@@ -144,8 +144,13 @@
   font-size: 2vw;
   width: 10vw;
   min-width: 50px;
+  line-height: 2;
   text-align: right;
   border: 0.5vw #222222 solid;
+}
+
+.ScoreCenter {
+  text-align: center;
 }
 
 .HighScore {
