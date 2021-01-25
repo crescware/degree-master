@@ -53,7 +53,7 @@ export class AppComponent {
   readonly oniBasic = oniBasic;
   readonly oniAdvanced = oniAdvanced;
   readonly oniExpert = oniExpert;
-  readonly oniThreshold = 3;
+  readonly oniThreshold = 9;
   readonly gameModeIcon = ['👼', '👹', '🏆'] as const;
   series: Series | null = null;
   activeTone: Tone | null = null;
