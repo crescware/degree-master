@@ -90,6 +90,10 @@
   background: #442211;
   color: #cccccc;
 }
+.Button_Master {
+  background: #F6AA15;
+  color: #333333;
+}
 
 .Button_Start:active {
   background: #fef14a;
