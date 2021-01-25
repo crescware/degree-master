@@ -5,7 +5,6 @@ export interface SeriesOptions {
   id: string;
   coverage: Tone[];
   glossCount: number;
-  bottom: Tone;
   bpm: number;
 }
 
@@ -15,14 +14,26 @@ export interface Buttons {
 }
 
 function buildButtons(options: SeriesOptions): Buttons {
-  const i = allTones.findIndex((v) => v.eq(options.bottom));
-  const range = allTones.slice(i, i + 14);
+  const bottom = (() => {
+    const prev1 = options.coverage[0].prevTone();
+    if (prev1.isUpperKey()) {
+      return prev1.prevTone();
+    }
+    return prev1;
+  })();
+  const i = allTones.findIndex((v) => v.eq(bottom));
+  const range = allTones.slice(i, i + 15);
   return range.reduce(
     (acc, tone) => {
+      if (acc.upper.length === 8 && acc.lower.length === 9) {
+        return acc;
+      }
       const isEnabled = options.coverage.find((cover) => cover.eq(tone));
       if (tone.isSameNote('e') || tone.isSameNote('b')) {
         acc.lower = acc.lower.concat(isEnabled ? tone : null);
-        acc.upper = acc.upper.concat(null);
+        if (acc.upper.length !== 8) {
+          acc.upper = acc.upper.concat(null);
+        }
         return acc;
       }
       if (tone.isUpperKey()) {
@@ -70,7 +81,7 @@ export class Series {
       if (this.cursor === this.getCount()) {
         this.cursor = 0;
         this.addToSeries(this.getNext());
-        this.score += 1;
+        this.score += this.calcEarnedScore();
         setTimeout(() => this.playSeries(), this.duration);
       }
       return;
@@ -107,6 +118,20 @@ export class Series {
       return [];
     }
     return this.buttons.lower;
+  }
+
+  calcEarnedScore(): number {
+    const options = this.options;
+    if (options === null) {
+      throw new Error('Failed to instantiate Series');
+    }
+    if (options.id !== 'master') {
+      return 1;
+    }
+    const oniRatio = options.glossCount === 1 ? 2 : 1;
+    return Math.floor(
+      (options.coverage.length * oniRatio * (options.bpm - 30)) / 100
+    );
   }
 
   private getNext(): Tone {

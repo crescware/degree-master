@@ -15,12 +15,22 @@ export const note = [
 export type Note = typeof note[number];
 export type Oct = -1 | 0 | 1;
 
-const freqArr = [...Array(36)].reduce((acc, _, i) => {
-  return acc.concat(110 * 2 ** (i / 12));
-}, [] as number[]).slice(3);
+const freqArr = [...Array(36)]
+  .reduce((acc, _, i) => {
+    return acc.concat(110 * 2 ** (i / 12));
+  }, [] as number[])
+  .slice(3);
 
 export class Tone {
   constructor(readonly note: Note, readonly oct: Oct) {}
+
+  prevTone(): Tone {
+    const i = note.findIndex((v) => this.note === v);
+    if (i === 0) {
+      return new Tone(note[note.length - 1], Math.max(this.oct - 1, -1) as Oct);
+    }
+    return new Tone(note[i - 1], this.oct);
+  }
 
   eq(other: Tone): boolean {
     return [this.note === other.note, this.oct === other.oct].every((v) => v);

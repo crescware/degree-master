@@ -4,7 +4,7 @@
 </div>
 
 <div class="Screen">
-  <ng-container *ngIf="getCount() === 0 && !isEnding">
+  <ng-container *ngIf="getCount() === 0 && !isEnding && !isMasterConfig">
     <div class="ScoreContainer">
       <p (click)="onClickNextMode()" class="Score ScoreCenter">
         {{ getNextIcon() }}
@@ -44,6 +44,14 @@
             (click)="onClickStart(oniExpert)"
           >
             ONI EXPERT
+          </button>
+        </ng-container>
+        <ng-container *ngIf="gameMode === 2">
+          <button
+            class="Button_Start Button_Master"
+            (click)="onClickTransitionToMaster()"
+          >
+            MASTER
           </button>
         </ng-container>
       </div>
@@ -123,7 +131,7 @@
         <span class="HighScore"> / {{ getCurrentHighScore() }}</span>
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
-      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
+      <div class="SoundIndicator">&nbsp;</div>
     </div>
 
     <div class="EndingScoreContainer">
@@ -132,6 +140,65 @@
       </p>
       <div class="ButtonsContainer">
         <button class="Button_Start" (click)="onClickRetry()">RETRY</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="isMasterConfig">
+    <div class="ScoreContainer">
+      <p class="Score ScoreCenter">&nbsp;</p>
+      <div class="SoundIndicator">&nbsp;</div>
+    </div>
+
+    <div class="MasterConfigContainer">
+      <h1 class="MasterConfigHead">MASTER MODE</h1>
+      <label for="key">
+        <span class="MasterConfigLabel">Key:</span>
+        <select (change)="onChangeMasterKey($event)" name="key" id="key">
+          <option value="f">F</option>
+          <option value="f#">F#</option>
+          <option value="g">G</option>
+          <option value="g#">Ab</option>
+          <option value="a">A</option>
+          <option value="a#">Bb</option>
+          <option value="b">B</option>
+          <option value="c">C</option>
+          <option value="c#">Db</option>
+          <option value="d">D</option>
+          <option value="d#">Eb</option>
+          <option value="e">E</option>
+        </select></label
+      >
+      <div>
+        <label class="MasterConfigLabel" for="oni"
+          >ONI: <input id="oni" type="checkbox" (change)="onChangeOni($event)"
+        /></label>
+      </div>
+      <div>
+        <label class="MasterConfigLabel" for="bpm"
+          >Speed:
+          <select
+            [value]="masterBpm"
+            (change)="onChangeSpeed($event)"
+            name="bpm"
+            id="bpm"
+          >
+            <option value="110">110</option>
+            <option value="130">130</option>
+            <option value="150">150</option>
+            <option value="170">170</option>
+            <option value="190">190</option>
+            <option value="250">250</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="999">999</option>
+          </select></label
+        >
+      </div>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickStartMaster()">
+          START
+        </button>
       </div>
     </div>
   </ng-container>

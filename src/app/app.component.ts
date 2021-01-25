@@ -7,6 +7,18 @@ import {
   advanced,
   basic,
   expert,
+  masterA,
+  masterAs,
+  masterB,
+  masterC,
+  masterCs,
+  masterD,
+  masterDs,
+  masterE,
+  masterF,
+  masterFs,
+  masterG,
+  masterGs,
   oniAdvanced,
   oniBasic,
   oniExpert,
@@ -14,7 +26,7 @@ import {
 import { MidiMediator } from './midi-mediator';
 import { Series, SeriesOptions } from './series';
 import { Synth } from './synth';
-import { allTones, Tone } from './tone';
+import { allTones, Note, Tone } from './tone';
 
 interface HighScore {
   basic: number;
@@ -41,22 +53,29 @@ export class AppComponent {
   readonly oniBasic = oniBasic;
   readonly oniAdvanced = oniAdvanced;
   readonly oniExpert = oniExpert;
+  readonly oniThreshold = 3;
+  readonly gameModeIcon = ['👼', '👹', '🏆'] as const;
   series: Series | null = null;
   activeTone: Tone | null = null;
   isPlaying = false;
   isEnding = false;
+  isMasterConfig = false;
+  isUnlockedOni = false;
+  isUnlockedMaster = false;
+  masterKey: Note = 'f';
+  useOniMaster = false;
+  masterBpm: number = 130;
   highScore: HighScore = {
-    basic: 9,
-    advanced: 9,
-    expert: 9,
+    basic: this.oniThreshold,
+    advanced: this.oniThreshold,
+    expert: this.oniThreshold,
     oniBasic: 0,
     oniAdvanced: 0,
     oniExpert: 0,
     master: 0,
     isUnlocked: false,
-  };
+  }; // default high score
   gameMode: 0 | 1 | 2 = 0; // 0 = normal, 1 = oni, 2 = master
-  gameModeIcon = ['👼', '👹', '🏆'];
 
   constructor(
     readonly cd: ChangeDetectorRef,
@@ -71,10 +90,11 @@ export class AppComponent {
   onClickStart(options: SeriesOptions): void {
     this.resetAll();
     this.series = new Series();
+    this.loadHighScore();
 
     this.series.destroy$.subscribe(() => {
-      this.isEnding = true;
       this.wrong();
+      this.transitionToEnding();
       this.cd.detectChanges(); // for MIDI
     });
 
@@ -88,6 +108,10 @@ export class AppComponent {
 
     this.prepareKeyboardBinding();
     this.series.startSeries(options);
+  }
+
+  onClickTransitionToMaster() {
+    this.isMasterConfig = true;
   }
 
   onClickRetry() {
@@ -129,11 +153,19 @@ export class AppComponent {
   }
 
   onClickNextMode(): void {
-    if (this.gameMode === 0) {
+    if (this.gameMode === 0 && this.isUnlockedOni) {
       this.gameMode = 1;
       return;
     }
-    if (this.gameMode === 1) {
+    if (this.gameMode === 1 && !this.isUnlockedMaster) {
+      this.gameMode = 0;
+      return;
+    }
+    if (this.gameMode === 1 && this.isUnlockedMaster) {
+      this.gameMode = 2;
+      return;
+    }
+    if (this.gameMode === 2) {
       this.gameMode = 0;
       return;
     }
@@ -141,13 +173,19 @@ export class AppComponent {
   }
 
   getNextIcon(): string {
-    if (this.gameMode === 0) {
+    if (this.gameMode === 0 && this.isUnlockedOni) {
       return this.gameModeIcon[1];
     }
-    if (this.gameMode === 1) {
+    if (this.gameMode === 1 && !this.isUnlockedMaster) {
       return this.gameModeIcon[0];
     }
-    return '';
+    if (this.gameMode === 1 && this.isUnlockedMaster) {
+      return this.gameModeIcon[2];
+    }
+    if (this.gameMode === 2) {
+      return this.gameModeIcon[0];
+    }
+    return '　';
   }
 
   onChangeMidiInput(ev: Event): void {
@@ -158,6 +196,83 @@ export class AppComponent {
     const optionEl = target as HTMLOptionElement;
     const value = JSON.parse(optionEl.value) as number | null;
     this.midi.updateInput(value);
+  }
+
+  onChangeMasterKey(ev: Event): void {
+    const { target } = ev;
+    if (target === null) {
+      throw new Error('target should be found');
+    }
+    const optionEl = target as HTMLOptionElement;
+    this.masterKey = optionEl.value as Note;
+  }
+
+  onChangeSpeed(ev: Event): void {
+    const { target } = ev;
+    if (target === null) {
+      throw new Error('target should be found');
+    }
+    const optionEl = target as HTMLOptionElement;
+    this.masterBpm = parseInt(optionEl.value) as number;
+  }
+
+  onChangeOni(ev: Event): void {
+    const { target } = ev;
+    if (target === null) {
+      throw new Error('target should be found');
+    }
+    const inputEl = target as HTMLInputElement;
+    this.useOniMaster = inputEl.checked;
+  }
+
+  onClickStartMaster() {
+    this.isMasterConfig = false;
+    this.onClickStart(
+      (() => {
+        const options = {
+          bpm: this.masterBpm,
+          glossCount: this.useOniMaster ? 1 : Infinity,
+        };
+
+        if (this.masterKey === 'f') {
+          return { ...masterF, ...options };
+        }
+        if (this.masterKey === 'f#') {
+          return { ...masterFs, ...options };
+        }
+        if (this.masterKey === 'g') {
+          return { ...masterG, ...options };
+        }
+        if (this.masterKey === 'g#') {
+          return { ...masterGs, ...options };
+        }
+        if (this.masterKey === 'a') {
+          return { ...masterA, ...options };
+        }
+        if (this.masterKey === 'a#') {
+          return { ...masterAs, ...options };
+        }
+        if (this.masterKey === 'b') {
+          return { ...masterB, ...options };
+        }
+        if (this.masterKey === 'c') {
+          return { ...masterC, ...options };
+        }
+        if (this.masterKey === 'c#') {
+          return { ...masterCs, ...options };
+        }
+        if (this.masterKey === 'd') {
+          return { ...masterD, ...options };
+        }
+        if (this.masterKey === 'd#') {
+          return { ...masterDs, ...options };
+        }
+        if (this.masterKey === 'e') {
+          return { ...masterE, ...options };
+        }
+        throw new Error('Invalid master key');
+      })()
+    );
   }
 
   onMousedown(tone: Tone | null): void {
@@ -243,5 +358,34 @@ export class AppComponent {
     const jsonStr =
       localStorage.getItem('json') ?? JSON.stringify(this.highScore);
     this.highScore = JSON.parse(jsonStr);
+    console.log(this.highScore);
+    if (
+      [
+        this.oniThreshold < this.highScore.basic,
+        this.oniThreshold < this.highScore.advanced,
+        this.oniThreshold < this.highScore.expert,
+      ].some((v) => v)
+    ) {
+      this.isUnlockedOni = true;
+    }
+    if (this.highScore.isUnlocked) {
+      this.isUnlockedMaster = true;
+    }
+  }
+
+  private transitionToEnding() {
+    this.isEnding = true;
+    const id = this.series?.getId() ?? '';
+    if (id === '') {
+      throw new Error('Unknown series');
+    }
+    const newHighScore = {
+      ...this.highScore,
+      [id]: this.getCurrentHighScore(),
+    };
+    localStorage.setItem('json', JSON.stringify(newHighScore));
+    requestAnimationFrame(() => {
+      this.loadHighScore();
+    });
   }
 }
