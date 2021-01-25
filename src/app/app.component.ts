@@ -3,7 +3,14 @@ import { fromEvent, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import * as UAParser from 'ua-parser-js';
 
-import { advanced, basic, expert, oniAdvanced, oniBasic, oniExpert } from './difficulty';
+import {
+  advanced,
+  basic,
+  expert,
+  oniAdvanced,
+  oniBasic,
+  oniExpert,
+} from './difficulty';
 import { MidiMediator } from './midi-mediator';
 import { Series, SeriesOptions } from './series';
 import { Synth } from './synth';
@@ -167,9 +174,7 @@ export class AppComponent {
     prefersGloss: boolean
   ): Promise<void> {
     this.isPlaying = true;
-    if (prefersGloss) {
-      this.activeTone = tone;
-    }
+    this.activeTone = prefersGloss ? tone : this.activeTone;
     this.cd.detectChanges(); // for MIDI
     await this.synth?.play(tone.getFreq(), duration);
 

@@ -62,6 +62,9 @@ export class Series {
     await this.trigger(tone, this.duration, true);
 
     const current = this.tones[this.cursor];
+    if (!current) {
+      return;
+    }
     if (current.eq(tone)) {
       this.cursor += 1;
       if (this.cursor === this.getCount()) {
