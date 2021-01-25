@@ -106,6 +106,13 @@ export class Series {
     return this.options.id;
   }
 
+  isOniMode(): boolean {
+    if (this.options === null) {
+      throw new Error('Failed to instantiate Series');
+    }
+    return this.options.glossCount === 1;
+  }
+
   getUpperKeys(): Array<Tone | null> {
     if (this.options === null) {
       return [];

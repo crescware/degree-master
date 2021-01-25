@@ -279,6 +279,11 @@ export class AppComponent {
     this.triggerTone(tone);
   }
 
+  getTweetText() {
+    const id = this.series?.getId();
+    return `聴いた音を覚えるゲーム！%0a結果は ${id} モードで${this.getCurrentScore()}点でした！%0aみんなも挑戦しよう。`;
+  }
+
   eqTone(a: Tone | null, b: Tone | null): boolean {
     if (a === null || b === null) {
       return false;
@@ -382,6 +387,9 @@ export class AppComponent {
     const newHighScore = {
       ...this.highScore,
       [id]: this.getCurrentHighScore(),
+      isUnlocked:
+        this.series?.isOniMode() &&
+        this.oniThreshold < this.getCurrentHighScore(),
     };
     localStorage.setItem('json', JSON.stringify(newHighScore));
     requestAnimationFrame(() => {
