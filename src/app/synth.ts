@@ -130,7 +130,16 @@ export class Synth {
   private async release(hash: string, releaseMs: number): Promise<void> {
     const ctx = this.getAudioContext();
 
-    const gainEnvelope = this.getGainEnvelope(hash);
+    let gainEnvelope: GainNode;
+    try {
+      gainEnvelope = this.getGainEnvelope(hash);
+    } catch (e) {
+      if (!e.message.includes(oscillatorNotFoundError)) {
+        throw e;
+      }
+      return;
+    }
+
     const t2 = ctx.currentTime;
     gainEnvelope.gain.setValueAtTime(gainEnvelope.gain.value, t2);
     gainEnvelope.gain.linearRampToValueAtTime(0, t2 + releaseMs / 1000);

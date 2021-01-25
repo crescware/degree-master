@@ -4,19 +4,56 @@
 </div>
 
 <div class="Screen">
-  <ng-container *ngIf="getCount() === 0; else ElseBlock">
+  <ng-container *ngIf="getCount() === 0 && !isEnding && !isMasterConfig">
+    <div class="ScoreContainer">
+      <p (click)="onClickNextMode()" class="Score ScoreCenter">
+        {{ getNextIcon() }}
+      </p>
+      <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
+    </div>
+
     <div class="LogoContainer">
       <h1 class="Logo">Degree Master</h1>
       <div class="ButtonsContainer">
-        <button class="Button_Start" (click)="onClickStart(basic)">
-          BASIC
-        </button>
-        <button class="Button_Start" (click)="onClickStart(advanced)">
-          ADVANCED
-        </button>
-        <button class="Button_Start" (click)="onClickStart(expert)">
-          EXPERT
-        </button>
+        <ng-container *ngIf="gameMode === 0">
+          <button class="Button_Start" (click)="onClickStart(basic)">
+            BASIC
+          </button>
+          <button class="Button_Start" (click)="onClickStart(advanced)">
+            ADVANCED
+          </button>
+          <button class="Button_Start" (click)="onClickStart(expert)">
+            EXPERT
+          </button>
+        </ng-container>
+        <ng-container *ngIf="gameMode === 1">
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniBasic)"
+          >
+            ONI BASIC
+          </button>
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniAdvanced)"
+          >
+            ONI ADVANCED
+          </button>
+          <button
+            class="Button_Start Button_Oni"
+            (click)="onClickStart(oniExpert)"
+          >
+            ONI EXPERT
+          </button>
+        </ng-container>
+        <ng-container *ngIf="gameMode === 2">
+          <button
+            class="Button_Start Button_Master"
+            (click)="onClickTransitionToMaster()"
+          >
+            MASTER
+          </button>
+        </ng-container>
       </div>
 
       <div *ngIf="midi.isMidiSupported()" class="Midi">
@@ -44,10 +81,11 @@
     </div>
   </ng-container>
 
-  <ng-template #ElseBlock>
+  <ng-container *ngIf="1 <= getCount() && !isEnding">
     <div class="ScoreContainer">
-      <p class="Score">
-        {{ getScore() }}
+      <p class="Score" [class.updating]="isUpdatingHighScore()">
+        {{ getCurrentScore() }}
+        <span class="HighScore"> / {{ getCurrentHighScore() }}</span>
         <span class="ScoreDecoration">&nbsp;</span>
       </p>
       <div class="SoundIndicator" [class.active]="isPlaying">&nbsp;</div>
@@ -84,5 +122,91 @@
         </button>
       </div>
     </div>
-  </ng-template>
+  </ng-container>
+
+  <ng-container *ngIf="isEnding">
+    <div class="ScoreContainer">
+      <p class="Score" [class.updating]="isUpdatingHighScore()">
+        {{ getCurrentScore() }}
+        <span class="HighScore"> / {{ getCurrentHighScore() }}</span>
+        <span class="ScoreDecoration">&nbsp;</span>
+      </p>
+      <div class="SoundIndicator">&nbsp;</div>
+    </div>
+
+    <div class="EndingScoreContainer">
+      <p class="EndingScoreP">
+        Your score is <span class="EndingScore">{{ getCurrentScore() }}</span>
+      </p>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickRetry()">RETRY</button>
+      </div>
+      <div class="Twitter">
+        <a
+          href="http://twitter.com/share?url=https://degree-master.crescware.com&text={{getTweetText()}}&via=crescware&hashtags=degree_master"
+          class="twitter-share-button"
+          >Tweet</a
+        >
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="isMasterConfig">
+    <div class="ScoreContainer">
+      <p class="Score ScoreCenter">&nbsp;</p>
+      <div class="SoundIndicator">&nbsp;</div>
+    </div>
+
+    <div class="MasterConfigContainer">
+      <h1 class="MasterConfigHead">MASTER MODE</h1>
+      <label for="key">
+        <span class="MasterConfigLabel">Key:</span>
+        <select (change)="onChangeMasterKey($event)" name="key" id="key">
+          <option value="f">F</option>
+          <option value="f#">F#</option>
+          <option value="g">G</option>
+          <option value="g#">Ab</option>
+          <option value="a">A</option>
+          <option value="a#">Bb</option>
+          <option value="b">B</option>
+          <option value="c">C</option>
+          <option value="c#">Db</option>
+          <option value="d">D</option>
+          <option value="d#">Eb</option>
+          <option value="e">E</option>
+        </select></label
+      >
+      <div>
+        <label class="MasterConfigLabel" for="oni"
+          >ONI: <input id="oni" type="checkbox" (change)="onChangeOni($event)"
+        /></label>
+      </div>
+      <div>
+        <label class="MasterConfigLabel" for="bpm"
+          >Speed:
+          <select
+            [value]="masterBpm"
+            (change)="onChangeSpeed($event)"
+            name="bpm"
+            id="bpm"
+          >
+            <option value="110">110</option>
+            <option value="130">130</option>
+            <option value="150">150</option>
+            <option value="170">170</option>
+            <option value="190">190</option>
+            <option value="250">250</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="999">999</option>
+          </select></label
+        >
+      </div>
+      <div class="ButtonsContainer">
+        <button class="Button_Start" (click)="onClickStartMaster()">
+          START
+        </button>
+      </div>
+    </div>
+  </ng-container>
 </div>
